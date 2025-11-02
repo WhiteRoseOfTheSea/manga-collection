@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Collezione manga
+    match /manga/{mangaId} {
+      // Tutti possono leggere
+      allow read: if true;
+      
+      // Solo admin autenticati possono scrivere
+      allow create, update, delete: if request.auth != null &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Collezione users
+    match /users/{userId} {
+      // Solo utenti autenticati possono leggere
+      allow read: if request.auth != null;
+      
+      // Nessuno può scrivere (solo tramite console Firebase)
+      allow write: if false;
+    }
+  }
+}
